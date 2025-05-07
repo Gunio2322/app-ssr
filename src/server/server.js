@@ -4,35 +4,43 @@ const fs = require('fs');
 const React = require('react');
 const ReactDOMServer = require('react-dom/server');
 const { StaticRouter } = require('react-router-dom');
-const App = require('../../dist/client/App').default;
+const { HelmetProvider } = require('react-helmet-async');
+const App = require('../client/App').default;
 
 const app = express();
+console.log('Starting server...');
 
-app.use((req, res, next) => {
-    console.log('Static file request:', req.url);
-    next();
+// Middleware do obsługi plików statycznych
+app.use('/static', express.static(path.resolve(__dirname, '../../public/static')));
+app.get('/favicon.ico', (req, res) => {
+    res.sendFile(path.resolve(__dirname, '../../public/static/favicon.ico'));
 });
 
-// Serve static files from the public directory
-app.use(express.static(path.resolve(__dirname, '../../public')));
-
-
-
-// Handle all requests
 app.get('*', (req, res) => {
-    console.log('Rendering URL:', req.url);
-    const htmlTemplate = fs.readFileSync(path.resolve(__dirname, 'templates/index.html'), 'utf8');
-    const context = {}; // Context for StaticRouter
+    const helmetContext = {};
+
     const reactApp = ReactDOMServer.renderToString(
-        <StaticRouter location={req.url} context={context}>
-            <App />
-        </StaticRouter>
+        <HelmetProvider context={helmetContext}>
+            <StaticRouter location={req.url} context={{}}>
+                <App />
+            </StaticRouter>
+        </HelmetProvider>
     );
-    const finalHtml = htmlTemplate.replace('<div id="root"></div>', `<div id="root">${reactApp}</div>`);
+
+    const { helmet } = helmetContext;
+
+    console.log('Helmet title:', helmet.title.toString());
+    console.log('Helmet meta:', helmet.meta.toString());
+
+    const htmlTemplate = fs.readFileSync(path.resolve(__dirname, 'templates/index.html'), 'utf8');
+    const finalHtml = htmlTemplate
+        .replace('<div id="root"></div>', `<div id="root">${reactApp}</div>`)
+        .replace('<title></title>', helmet.title.toString())
+        .replace('<meta name="description" content="">', helmet.meta.toString());
+
     res.send(finalHtml);
 });
 
-// Start the server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server is listening on port ${PORT}`);
