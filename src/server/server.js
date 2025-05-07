@@ -29,14 +29,17 @@ app.get('*', (req, res) => {
 
     const { helmet } = helmetContext;
 
-    console.log('Helmet title:', helmet.title.toString());
-    console.log('Helmet meta:', helmet.meta.toString());
+    // console.log('Helmet title:', helmet.title.toString());
+    // console.log('Helmet meta:', helmet.meta.toString());
 
     const htmlTemplate = fs.readFileSync(path.resolve(__dirname, 'templates/index.html'), 'utf8');
     const finalHtml = htmlTemplate
         .replace('<div id="root"></div>', `<div id="root">${reactApp}</div>`)
         .replace('<title></title>', helmet.title.toString())
         .replace('<meta name="description" content="">', helmet.meta.toString());
+
+        // console.log('Helmet title:', helmet.title.toString());
+        // console.log('Helmet meta:', helmet.meta.toString());
 
     res.send(finalHtml);
 });

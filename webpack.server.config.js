@@ -1,5 +1,6 @@
 const path = require('path');
 const nodeExternals = require('webpack-node-externals');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
     entry: './src/server/server.js', // Główny plik serwera
@@ -23,6 +24,13 @@ module.exports = {
             },
         ],
     },
+    plugins: [
+        new CopyWebpackPlugin({
+            patterns: [
+                { from: 'src/server/templates/index.html', to: 'templates/index.html' },
+            ],
+        }),
+    ],
     resolve: {
         extensions: ['.js', '.jsx'], // Obsługiwane rozszerzenia
     },

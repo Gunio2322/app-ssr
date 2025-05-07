@@ -6,7 +6,7 @@ module.exports = {
     entry: './src/client/index.js', // Punkt wejścia dla klienta
     target: 'web', // Dla kodu klienta
     output: {
-        path: path.resolve(__dirname, 'dist/client'), // Wyjście dla klienta
+        path: path.resolve(__dirname, 'public/static/js'), // Wyjście dla klienta
         filename: 'bundle.js',
     },
     module: {
